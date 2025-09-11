@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useShipComparison } from '@/hooks/useShips';
 import { Eye, Plus, Minus } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface ShipCardProps {
   ship: Ship;
@@ -10,6 +11,7 @@ interface ShipCardProps {
 }
 
 export function ShipCard({ ship, onViewDetail }: ShipCardProps) {
+  const router = useRouter();
   const { isSelected, canAddMore, addShip, removeShip } = useShipComparison();
   
   const selected = isSelected(ship.ship_ID);
@@ -23,7 +25,11 @@ export function ShipCard({ ship, onViewDetail }: ShipCardProps) {
   };
 
   const handleViewDetail = () => {
-    onViewDetail?.(ship);
+    if (onViewDetail) {
+      onViewDetail(ship);
+    } else {
+      router.push(`/ships/${ship.ship_ID}`);
+    }
   };
 
   return (

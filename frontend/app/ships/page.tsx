@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Ship } from '@/types/ship';
 import { ShipList } from '@/features/ships/components/ShipList';
 import { useShipComparison } from '@/hooks/useShips';
@@ -9,6 +10,7 @@ import { Button } from '@/components/ui/Button';
 import { Ship as ShipIcon, GitCompare, X } from 'lucide-react';
 
 export default function ShipsPage() {
+  const router = useRouter();
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
   const { selectedShips, selectedCount, removeShip, clearAll } = useShipComparison();
 
@@ -17,8 +19,7 @@ export default function ShipsPage() {
   };
 
   const handleCompareClick = () => {
-    // 比較ページへのナビゲーション（後で実装）
-    console.log('比較ページへ遷移', selectedShips);
+    router.push('/ships/compare');
   };
 
   return (

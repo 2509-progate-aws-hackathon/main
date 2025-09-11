@@ -94,7 +94,7 @@ export default function Home() {
               <p className="text-gray-700 mb-6">
                 最大3隻の船舶を選択して、スペックや性能を並べて比較検討することができます。
               </p>
-              <Link href="/ships">
+              <Link href="/ships/compare">
                 <Button variant="outline" className="w-full group-hover:bg-green-50 transition-colors">
                   比較を開始する
                   <ArrowRight className="w-4 h-4 ml-2" />

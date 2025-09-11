@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Ship } from '@/types/ship';
 import { useShips, useShipComparison } from '@/hooks/useShips';
 import { ShipCard } from './ShipCard';
@@ -27,12 +28,29 @@ interface ShipListProps {
 }
 
 export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
+  const router = useRouter();
   const { filteredShips, filteredCount, totalCount } = useShips();
   const { selectedShips, selectedCount } = useShipComparison();
   
   const [sortField, setSortField] = useState<SortField>('ship_ID');
   const [sortOrder, setSortOrder] = useState<SortOrder>('asc');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
+
+  const handleShipSelect = (ship: Ship) => {
+    if (onShipSelect) {
+      onShipSelect(ship);
+    } else {
+      router.push(`/ships/${ship.ship_ID}`);
+    }
+  };
+
+  const handleCompareClick = () => {
+    if (onCompareClick) {
+      onCompareClick();
+    } else {
+      router.push('/ships/compare');
+    }
+  };
 
   // ソート処理
   const sortedShips = [...filteredShips].sort((a, b) => {
@@ -97,7 +115,7 @@ export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={onCompareClick}
+                  onClick={handleCompareClick}
                   className="flex items-center gap-1"
                 >
                   <GitCompare className="w-4 h-4" />
@@ -171,7 +189,7 @@ export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
             <ShipCard
               key={ship.ship_ID}
               ship={ship}
-              onViewDetail={onShipSelect}
+              onViewDetail={handleShipSelect}
             />
           ))}
         </div>
@@ -224,7 +242,7 @@ export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
                           <Button
                             variant="ghost"
                             size="sm"
-                            onClick={() => onShipSelect?.(ship)}
+                            onClick={() => handleShipSelect(ship)}
                           >
                             <Eye className="w-4 h-4" />
                           </Button>
