@@ -20,3 +20,19 @@
   - 記載されている以上の実装を絶対に行わない
   - ここでデバッグしない
 - 「デバッグ」と指示された場合、直前のタスクのデバッグ「手順」のみを示す
+
+## フォルダ構造
+
+```
+app
+├─ components/
+├─ pages/
+├─ features/  
+├─ stores/
+├─ config/
+├─ const/
+├─ hooks/
+├─ libs/
+├─ styles/
+└─ types/
+```

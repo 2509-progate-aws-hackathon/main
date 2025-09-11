@@ -26,7 +26,7 @@ LINKS から公開されている一般旅客定期航路事業データより�
 | Width | 小数型 | 幅 | m | 4.51 | |
 | Maximum_Height | 小数型 | 最大高 | m | 1.59 | |
 | Maximum_(Full_Load)_Draft | 小数型 | 最大（満載）喫水 | m | 1.45 | |
-| SHIPYARD_ID | 整数型 | 造船所ID | - | 9000000001 | |
+| SHIPYARD_ID | 整数型 | 造船所ID | - | 9000001 | |
 | Radio_Equipment | テキスト型 | 無線設備 | - | あり | |
 | Maneuverability_(Turning_Radius) | テキスト型 | 運動性能(旋回径) | - | 50×50 | |
 | Maneuverability_(Drift_Distance) | テキスト型 | 運動性能(惰力) | - | 約15230ノット航海速力時 | |
