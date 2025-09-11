@@ -1,103 +1,113 @@
-import Image from "next/image";
+'use client';
+
+import { useShips, useShipComparison } from '@/hooks/useShips';
+import { Card, CardContent, CardHeader } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { ships, filteredShips, totalCount, filteredCount } = useShips();
+  const { selectedShips, selectedCount, addShip, removeShip, clearAll } = useShipComparison();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  return (
+    <div className="container mx-auto px-4 py-8">
+      <h1 className="text-3xl font-bold text-gray-900 mb-8">
+        船舶情報比較・検索アプリ
+      </h1>
+      
+      {/* 統計情報 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+        <Card>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{totalCount}</div>
+            <div className="text-sm text-gray-600">総船舶数</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{filteredCount}</div>
+            <div className="text-sm text-gray-600">表示中</div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent>
+            <div className="text-2xl font-bold text-purple-600">{selectedCount}/3</div>
+            <div className="text-sm text-gray-600">比較選択中</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 比較選択中の船舶 */}
+      {selectedCount > 0 && (
+        <Card className="mb-8">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <h2 className="text-lg font-semibold">比較選択中の船舶</h2>
+              <Button variant="outline" size="sm" onClick={clearAll}>
+                すべてクリア
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              {selectedShips.map(ship => (
+                <div key={ship.ship_ID} className="flex justify-between items-center p-2 bg-gray-50 rounded">
+                  <span>{ship.ship_ID} - {ship.ship_kind}</span>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    onClick={() => removeShip(ship.ship_ID)}
+                  >
+                    削除
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* 船舶一覧 */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredShips.map(ship => (
+          <Card key={ship.ship_ID}>
+            <CardHeader>
+              <h3 className="font-semibold">{ship.ship_ID}</h3>
+              <p className="text-sm text-gray-600">{ship.ship_kind}</p>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span>総トン数:</span>
+                  <span>{ship.ship_weight}トン</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>最高速力:</span>
+                  <span>{ship.Maximum_Speed}ノット</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>全長:</span>
+                  <span>{ship.Overall_Length}m</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>定員:</span>
+                  <span>{ship.capacity_passengers}人</span>
+                </div>
+              </div>
+              <div className="mt-4">
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={() => addShip(ship)}
+                  disabled={selectedCount >= 3}
+                  className="w-full"
+                >
+                  比較に追加
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }
