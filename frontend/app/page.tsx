@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useShips, useShipComparison } from "@/hooks/useShips";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { Ship, Search, GitCompare, ArrowRight } from "lucide-react";
+import { Ship, Search, GitCompare, ArrowRight, Bot } from "lucide-react";
 
 export default function Home() {
   const { ships, filteredShips, totalCount, filteredCount } = useShips();
@@ -30,7 +30,7 @@ export default function Home() {
         </div>
 
         {/* アクションカード */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
           <Card className="hover:shadow-lg transition-all group">
             <CardContent className="p-8">
               <div className="flex items-center mb-4">
@@ -78,6 +78,34 @@ export default function Home() {
                   className="w-full group-hover:bg-green-50 transition-colors"
                 >
                   比較を開始する
+                  <ArrowRight className="w-4 h-4 ml-2" />
+                </Button>
+              </Link>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-all group">
+            <CardContent className="p-8">
+              <div className="flex items-center mb-4">
+                <div className="bg-purple-100 p-3 rounded-full mr-4">
+                  <Bot className="w-8 h-8 text-purple-600" />
+                </div>
+                <div>
+                  <h3 className="text-xl font-semibold text-gray-900">
+                    AI アシスタント
+                  </h3>
+                  <p className="text-gray-600">船舶について質問</p>
+                </div>
+              </div>
+              <p className="text-gray-700 mb-6">
+                AIが船舶データベースを分析して、あなたの質問に詳しく回答します。検索や比較のお手伝いをします。
+              </p>
+              <Link href="/chat" prefetch={true}>
+                <Button
+                  variant="outline"
+                  className="w-full group-hover:bg-purple-50 transition-colors"
+                >
+                  チャットを開始する
                   <ArrowRight className="w-4 h-4 ml-2" />
                 </Button>
               </Link>

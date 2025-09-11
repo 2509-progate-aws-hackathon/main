@@ -7,7 +7,7 @@ import { ShipList } from '@/features/ships/components/ShipList';
 import { useShipComparison, useShips } from '@/hooks/useShips';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Ship as ShipIcon, GitCompare, X, ArrowLeft } from 'lucide-react';
+import { Ship as ShipIcon, GitCompare, X, ArrowLeft, Bot } from 'lucide-react';
 
 export default function ShipsPage() {
   const router = useRouter();
@@ -87,51 +87,64 @@ export default function ShipsPage() {
               </div>
             </div>
             
-            {/* 比較中の船舶表示 */}
-            {selectedCount > 0 && (
-              <Card className="min-w-64">
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <GitCompare className="w-4 h-4" />
-                      <span className="text-sm font-medium">比較中 ({selectedCount}/3)</span>
-                    </div>
-                    <Button variant="ghost" size="sm" onClick={clearAll}>
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="pt-0">
-                  <div className="space-y-1">
-                    {selectedShips.map(ship => (
-                      <div 
-                        key={ship.ship_ID} 
-                        className="flex items-center justify-between text-xs bg-gray-50 px-2 py-1 rounded"
-                      >
-                        <span className="truncate">{ship.ship_ID}</span>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeShip(ship.ship_ID)}
-                          className="h-4 w-4 p-0"
-                        >
-                          <X className="w-3 h-3" />
-                        </Button>
+            <div className="flex items-center gap-3">
+              {/* AI アシスタントボタン */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/chat')}
+                className="text-purple-600 border-purple-200 hover:bg-purple-50"
+              >
+                <Bot className="w-4 h-4 mr-1" />
+                AI に質問
+              </Button>
+            
+              {/* 比較中の船舶表示 */}
+              {selectedCount > 0 && (
+                <Card className="min-w-64">
+                  <CardHeader className="pb-2">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <GitCompare className="w-4 h-4" />
+                        <span className="text-sm font-medium">比較中 ({selectedCount}/3)</span>
                       </div>
-                    ))}
-                  </div>
-                  {selectedCount >= 2 && (
-                    <Button
-                      size="sm"
-                      onClick={handleCompareClick}
-                      className="w-full mt-2"
-                    >
-                      比較する
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
-            )}
+                      <Button variant="ghost" size="sm" onClick={clearAll}>
+                        <X className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-1">
+                      {selectedShips.map(ship => (
+                        <div 
+                          key={ship.ship_ID} 
+                          className="flex items-center justify-between text-xs bg-gray-50 px-2 py-1 rounded"
+                        >
+                          <span className="truncate">{ship.ship_ID}</span>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => removeShip(ship.ship_ID)}
+                            className="h-4 w-4 p-0"
+                          >
+                            <X className="w-3 h-3" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                    {selectedCount >= 2 && (
+                      <Button
+                        size="sm"
+                        onClick={handleCompareClick}
+                        className="w-full mt-2"
+                      >
+                        比較する
+                      </Button>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </div>
           </div>
         </div>
       </div>
