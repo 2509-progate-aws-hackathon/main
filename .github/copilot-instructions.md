@@ -7,7 +7,6 @@
 - コマンドの出力が確認できない場合、 get last command / check background terminal を使用して確認すること
 
 ## develop
-要件は `docs/requirements.md` に記載されているので、都度参照する。
 各作業を以下のように定義する。
 - 「調査」と指示された場合、都度 docs/reports に記載すること
 - 「計画」と指示した場合、tasks.md に計画を記載する
@@ -21,8 +20,14 @@
   - ここでデバッグしない
 - 「デバッグ」と指示された場合、直前のタスクのデバッグ「手順」のみを示す
 
-## フォルダ構造
+## documents
+- docs/reports/*.md : 調査レポート
+- docs/schema.md : データ構造
+- docs/requirements.md : 要件定義
 
+## フォルダ構造
+### frontend
+features フォルダ構成を使用している。
 ```
 app
 ├─ components/
