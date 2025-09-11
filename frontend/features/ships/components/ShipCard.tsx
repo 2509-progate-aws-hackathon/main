@@ -8,9 +8,10 @@ import { useRouter } from 'next/navigation';
 interface ShipCardProps {
   ship: Ship;
   onViewDetail?: (ship: Ship) => void;
+  isCurrentlySelected?: boolean;
 }
 
-export function ShipCard({ ship, onViewDetail }: ShipCardProps) {
+export function ShipCard({ ship, onViewDetail, isCurrentlySelected }: ShipCardProps) {
   const router = useRouter();
   const { isSelected, canAddMore, addShip, removeShip } = useShipComparison();
   
@@ -33,18 +34,31 @@ export function ShipCard({ ship, onViewDetail }: ShipCardProps) {
   };
 
   return (
-    <Card className={`transition-all hover:shadow-lg ${selected ? 'ring-2 ring-blue-500' : ''}`}>
+    <Card className={`transition-all hover:shadow-lg ${
+      isCurrentlySelected 
+        ? 'ring-2 ring-orange-500 bg-orange-50' 
+        : selected 
+        ? 'ring-2 ring-blue-500' 
+        : ''
+    }`}>
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
             <h3 className="font-semibold text-lg text-gray-900">{ship.ship_ID}</h3>
             <p className="text-sm text-blue-600 font-medium">{ship.ship_kind}</p>
           </div>
-          {selected && (
-            <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
-              比較中
-            </div>
-          )}
+          <div className="flex gap-1">
+            {isCurrentlySelected && (
+              <div className="bg-orange-100 text-orange-800 text-xs px-2 py-1 rounded-full">
+                表示中
+              </div>
+            )}
+            {selected && (
+              <div className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full">
+                比較中
+              </div>
+            )}
+          </div>
         </div>
       </CardHeader>
       

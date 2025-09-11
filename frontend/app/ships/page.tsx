@@ -1,25 +1,49 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Ship } from '@/types/ship';
 import { ShipList } from '@/features/ships/components/ShipList';
-import { useShipComparison } from '@/hooks/useShips';
+import { useShipComparison, useShips } from '@/hooks/useShips';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
-import { Ship as ShipIcon, GitCompare, X } from 'lucide-react';
+import { Ship as ShipIcon, GitCompare, X, ArrowLeft } from 'lucide-react';
 
 export default function ShipsPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selectedShip, setSelectedShip] = useState<Ship | null>(null);
   const { selectedShips, selectedCount, removeShip, clearAll } = useShipComparison();
+  const { ships } = useShips();
+
+  // URLパラメータから選択中の船舶を取得
+  useEffect(() => {
+    const shipId = searchParams.get('selected');
+    if (shipId) {
+      const ship = ships.find(s => s.ship_ID === shipId);
+      if (ship) {
+        setSelectedShip(ship);
+      }
+    }
+  }, [searchParams, ships]);
 
   const handleShipSelect = (ship: Ship) => {
     setSelectedShip(ship);
+    // URLパラメータを更新して選択状態を反映
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('selected', ship.ship_ID);
+    router.replace(`/ships?${params.toString()}`);
   };
 
   const handleCompareClick = () => {
     router.push('/ships/compare');
+  };
+
+  const clearSelection = () => {
+    setSelectedShip(null);
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('selected');
+    router.replace(`/ships${params.toString() ? `?${params.toString()}` : ''}`);
   };
 
   return (
@@ -29,10 +53,37 @@ export default function ShipsPage() {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.push('/')}
+                className="text-gray-600 hover:text-blue-600"
+              >
+                <ArrowLeft className="w-4 h-4 mr-1" />
+                ホーム
+              </Button>
               <ShipIcon className="w-8 h-8 text-blue-600" />
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">船舶情報検索</h1>
-                <p className="text-gray-600">船舶スペックの比較・検索システム</p>
+                <div className="flex items-center gap-2 text-gray-600">
+                  <span>船舶スペックの比較・検索システム</span>
+                  {selectedShip && (
+                    <>
+                      <span>•</span>
+                      <span className="text-blue-600 font-medium">
+                        {selectedShip.ship_ID} を表示中
+                      </span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={clearSelection}
+                        className="h-auto p-1 text-gray-400 hover:text-red-600"
+                      >
+                        <X className="w-3 h-3" />
+                      </Button>
+                    </>
+                  )}
+                </div>
               </div>
             </div>
             
@@ -93,6 +144,7 @@ export default function ShipsPage() {
             <ShipList
               onShipSelect={handleShipSelect}
               onCompareClick={handleCompareClick}
+              selectedShipId={selectedShip?.ship_ID}
             />
           </div>
 
@@ -211,7 +263,10 @@ export default function ShipsPage() {
                     </div>
 
                     {/* 詳細ボタン */}
-                    <Button className="w-full">
+                    <Button 
+                      className="w-full"
+                      onClick={() => router.push(`/ships/${selectedShip.ship_ID}`)}
+                    >
                       詳細ページを見る
                     </Button>
                   </div>

@@ -25,9 +25,10 @@ type ViewMode = 'grid' | 'list';
 interface ShipListProps {
   onShipSelect?: (ship: Ship) => void;
   onCompareClick?: () => void;
+  selectedShipId?: string;
 }
 
-export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
+export function ShipList({ onShipSelect, onCompareClick, selectedShipId }: ShipListProps) {
   const router = useRouter();
   const { filteredShips, filteredCount, totalCount } = useShips();
   const { selectedShips, selectedCount } = useShipComparison();
@@ -190,6 +191,7 @@ export function ShipList({ onShipSelect, onCompareClick }: ShipListProps) {
               key={ship.ship_ID}
               ship={ship}
               onViewDetail={handleShipSelect}
+              isCurrentlySelected={selectedShipId === ship.ship_ID}
             />
           ))}
         </div>
