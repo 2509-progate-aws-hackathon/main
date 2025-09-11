@@ -47,7 +47,7 @@ export default function Home() {
               <p className="text-gray-700 mb-6">
                 船舶の種類、総トン数、速力などの条件を指定して、目的に合った船舶を効率的に検索できます。
               </p>
-              <Link href="/ships">
+              <Link href="/ships" prefetch={true}>
                 <Button className="w-full group-hover:bg-blue-700 transition-colors">
                   船舶を検索する
                   <ArrowRight className="w-4 h-4 ml-2" />
@@ -72,7 +72,7 @@ export default function Home() {
               <p className="text-gray-700 mb-6">
                 最大3隻の船舶を選択して、スペックや性能を並べて比較検討することができます。
               </p>
-              <Link href="/ships/compare">
+              <Link href="/ships/compare" prefetch={true}>
                 <Button
                   variant="outline"
                   className="w-full group-hover:bg-green-50 transition-colors"

@@ -2,8 +2,8 @@ import { Ship } from '@/types/ship';
 import { Card, CardContent, CardHeader } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { useShipComparison } from '@/hooks/useShips';
+import { useOptimizedNavigation } from '@/hooks/useOptimizedNavigation';
 import { Eye, Plus, Minus } from 'lucide-react';
-import { useRouter } from 'next/navigation';
 
 interface ShipCardProps {
   ship: Ship;
@@ -12,7 +12,7 @@ interface ShipCardProps {
 }
 
 export function ShipCard({ ship, onViewDetail, isCurrentlySelected }: ShipCardProps) {
-  const router = useRouter();
+  const { navigateWithTransition } = useOptimizedNavigation();
   const { isSelected, canAddMore, addShip, removeShip } = useShipComparison();
   
   const selected = isSelected(ship.ship_ID);
@@ -29,7 +29,7 @@ export function ShipCard({ ship, onViewDetail, isCurrentlySelected }: ShipCardPr
     if (onViewDetail) {
       onViewDetail(ship);
     } else {
-      router.push(`/ships/${ship.ship_ID}`);
+      navigateWithTransition(`/ships/${ship.ship_ID}`);
     }
   };
 

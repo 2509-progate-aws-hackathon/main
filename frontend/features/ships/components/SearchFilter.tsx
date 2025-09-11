@@ -144,7 +144,7 @@ export function SearchFilter({ onFiltersChange }: SearchFilterProps) {
                 </div>
               </div>
               <p className="text-xs text-gray-500 mt-3">
-                ※ 詳細フィルターは今後のアップデートで実装予定です
+                ※ まだつくってないよーｗ
               </p>
             </div>
           )}
