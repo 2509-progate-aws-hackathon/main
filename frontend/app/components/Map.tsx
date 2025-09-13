@@ -1,5 +1,11 @@
 import maplibregl from 'maplibre-gl';
-import { useRef, useEffect } from 'react';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import { useRef, useEffect, useState } from 'react';
+
+interface Point {
+  lng: number;
+  lat: number;
+}
 
 interface MapProps {
   className?: string;
@@ -8,6 +14,11 @@ interface MapProps {
 
 export default function Map({ className, style }: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<maplibregl.Map | null>(null);
+  const [startPoint, setStartPoint] = useState<Point | null>(null);
+  const [endPoint, setEndPoint] = useState<Point | null>(null);
+  const startMarkerRef = useRef<maplibregl.Marker | null>(null);
+  const endMarkerRef = useRef<maplibregl.Marker | null>(null);
 
   const region = process.env.NEXT_PUBLIC_AWS_REGION;
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
@@ -23,17 +34,91 @@ export default function Map({ className, style }: MapProps) {
       zoom: 18,
     });
 
+    mapInstanceRef.current = map;
+
     map.addControl(
       new maplibregl.NavigationControl({
         visualizePitch: true,
       })
     );
 
+    // マップクリックイベントハンドラー
+    const handleMapClick = (e: maplibregl.MapMouseEvent) => {
+      const { lng, lat } = e.lngLat;
+      
+      if (!startPoint) {
+        // 最初のクリック: startPointを設定
+        setStartPoint({ lng, lat });
+      } else if (!endPoint) {
+        // 二回目のクリック: endPointを設定
+        setEndPoint({ lng, lat });
+      }
+      // 3回目以降のクリックは無視
+    };
+
+    map.on('click', handleMapClick);
+
     // クリーンアップ関数
     return () => {
+      if (startMarkerRef.current) {
+        startMarkerRef.current.remove();
+      }
+      if (endMarkerRef.current) {
+        endMarkerRef.current.remove();
+      }
+      map.off('click', handleMapClick);
       map.remove();
+      mapInstanceRef.current = null;
     };
   }, [region, mapApiKey, mapStyle]);
+
+  // startPointマーカーの管理
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    
+    // 既存マーカーを削除
+    if (startMarkerRef.current) {
+      startMarkerRef.current.remove();
+    }
+
+    // 新しいマーカーを作成
+    if (startPoint) {
+      const markerElement = document.createElement('div');
+      markerElement.style.width = '20px';
+      markerElement.style.height = '20px';
+      markerElement.style.backgroundColor = 'red';
+      markerElement.style.borderRadius = '50%';
+      markerElement.style.border = '2px solid white';
+      
+      startMarkerRef.current = new maplibregl.Marker({ element: markerElement })
+        .setLngLat([startPoint.lng, startPoint.lat])
+        .addTo(mapInstanceRef.current);
+    }
+  }, [startPoint]);
+
+  // endPointマーカーの管理
+  useEffect(() => {
+    if (!mapInstanceRef.current) return;
+    
+    // 既存マーカーを削除
+    if (endMarkerRef.current) {
+      endMarkerRef.current.remove();
+    }
+
+    // 新しいマーカーを作成
+    if (endPoint) {
+      const markerElement = document.createElement('div');
+      markerElement.style.width = '20px';
+      markerElement.style.height = '20px';
+      markerElement.style.backgroundColor = 'blue';
+      markerElement.style.borderRadius = '50%';
+      markerElement.style.border = '2px solid white';
+      
+      endMarkerRef.current = new maplibregl.Marker({ element: markerElement })
+        .setLngLat([endPoint.lng, endPoint.lat])
+        .addTo(mapInstanceRef.current);
+    }
+  }, [endPoint]);
 
   return (
     <div 
