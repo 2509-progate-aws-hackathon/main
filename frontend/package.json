@@ -10,6 +10,7 @@
     "format": "biome format --write"
   },
   "dependencies": {
+    "@aws-sdk/client-location": "^3.888.0",
     "aws-amplify": "^6.15.6",
     "maplibre-gl": "^5.7.1",
     "next": "15.5.3",

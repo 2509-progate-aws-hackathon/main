@@ -20,7 +20,7 @@ export default function Map({ className, style }: MapProps) {
       container: mapRef.current,
       style: `https://maps.geo.${region}.amazonaws.com/v2/styles/${mapStyle}/descriptor?key=${mapApiKey}`,
       center: [139.7166369797635, 35.63355477944539],
-      zoom: 11,
+      zoom: 18,
     });
 
     map.addControl(
