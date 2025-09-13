@@ -14,7 +14,7 @@ export interface AccidentReport {
   
   // 事故詳細 (6項目)
   accidentTypeCategory?: string;
-  orderOfAccidentOccurrence?: number;
+  orderOfAccidentOccurrence?: string;
   fallHeight?: number;
   waterDepth?: number;
   collisionCondition?: string;

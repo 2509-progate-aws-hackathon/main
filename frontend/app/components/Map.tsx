@@ -3,6 +3,8 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRef, useEffect, useState } from 'react';
 import { useRouteCalculation } from '../hooks/useRouteCalculation';
 import { useRouteVisualization } from '../hooks/useRouteVisualization';
+import { useAccidentMarkers } from '../hooks/useAccidentMarkers';
+import type { AccidentReport } from '../types/AccidentReport';
 
 interface Point {
   lng: number;
@@ -12,9 +14,16 @@ interface Point {
 interface MapProps {
   className?: string;
   style?: React.CSSProperties;
+  accidentReports?: AccidentReport[];
+  onAccidentMarkerClick?: (report: AccidentReport) => void;
 }
 
-export default function Map({ className, style }: MapProps) {
+export default function Map({ 
+  className, 
+  style, 
+  accidentReports = [], 
+  onAccidentMarkerClick 
+}: MapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstanceRef = useRef<maplibregl.Map | null>(null);
   const [startPoint, setStartPoint] = useState<Point | null>(null);
@@ -28,6 +37,13 @@ export default function Map({ className, style }: MapProps) {
   // ルート可視化フックを使用
   const { displayRoute, clearRoute, addRouteInteraction } = useRouteVisualization({
     map: mapInstanceRef.current
+  });
+
+  // 事故マーカー管理フックを使用
+  const { getMarkerCount } = useAccidentMarkers({
+    map: mapInstanceRef.current,
+    reports: accidentReports,
+    onMarkerClick: onAccidentMarkerClick
   });
 
   // マーカーとルートをリセットする関数
