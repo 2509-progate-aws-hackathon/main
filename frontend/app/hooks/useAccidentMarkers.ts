@@ -69,7 +69,7 @@ const createTooltip = (report: AccidentReport, map: maplibregl.Map): HTMLElement
   
   // マップ外クリックで閉じる
   const closeOnMapClick = (e: any) => {
-    if (!tooltip.contains(e.target)) {
+    if (!tooltip || !tooltip.contains(e.target)) {
       tooltip.remove();
       map.off('click', closeOnMapClick);
     }
