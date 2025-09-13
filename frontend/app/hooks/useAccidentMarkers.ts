@@ -87,16 +87,6 @@ const createMarkerElement = (report: AccidentReport): HTMLElement => {
   element.style.cursor = 'pointer';
   element.style.zIndex = '1000';
   
-  // ホバー効果
-  element.addEventListener('mouseenter', () => {
-    element.style.transform = 'scale(1.2)';
-    element.style.transition = 'transform 0.2s ease-in-out';
-  });
-  
-  element.addEventListener('mouseleave', () => {
-    element.style.transform = 'scale(1)';
-  });
-  
   // ツールチップ設定
   element.title = `${report.title || '事故情報'}\n場所: ${report.location || '不明'}\n種別: ${report.accidentTypeCategory || 'その他'}`;
   
