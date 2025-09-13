@@ -46,14 +46,22 @@ export default function Map({ className, style }: MapProps) {
     const handleMapClick = (e: maplibregl.MapMouseEvent) => {
       const { lng, lat } = e.lngLat;
       
-      if (!startPoint) {
-        // 最初のクリック: startPointを設定
-        setStartPoint({ lng, lat });
-      } else if (!endPoint) {
-        // 二回目のクリック: endPointを設定
-        setEndPoint({ lng, lat });
-      }
-      // 3回目以降のクリックは無視
+      setStartPoint(prevStart => {
+        if (!prevStart) {
+          // 最初のクリック: startPointを設定
+          return { lng, lat };
+        } else {
+          setEndPoint(prevEnd => {
+            if (!prevEnd) {
+              // 二回目のクリック: endPointを設定
+              return { lng, lat };
+            }
+            // 3回目以降のクリックは無視
+            return prevEnd;
+          });
+          return prevStart;
+        }
+      });
     };
 
     map.on('click', handleMapClick);
@@ -82,6 +90,7 @@ export default function Map({ className, style }: MapProps) {
     }
 
     // 新しいマーカーを作成
+    // TODO: markerのデザインを改善
     if (startPoint) {
       const markerElement = document.createElement('div');
       markerElement.style.width = '20px';
