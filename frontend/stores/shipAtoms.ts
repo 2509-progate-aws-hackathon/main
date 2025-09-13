@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 import { Ship, SearchFilters } from '@/types/ship';
-import { getMockShips } from '@/app/mocks/ships';
+import { getMockShips } from '@/mocks/ships';
 
 /**
  * 基本的なatoms

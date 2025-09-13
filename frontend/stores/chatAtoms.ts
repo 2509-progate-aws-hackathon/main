@@ -1,6 +1,6 @@
 import { atom } from 'jotai';
 import { ChatMessage, ChatSession } from '@/types/chat';
-import { mockRAGSystem } from '@/app/mocks/ragSystem';
+import { mockRAGSystem } from '@/mocks/ragSystem';
 
 // TODO: 高度な状態管理機能
 // - 複数セッション同期

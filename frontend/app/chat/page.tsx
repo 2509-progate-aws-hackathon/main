@@ -10,8 +10,8 @@ import {
   deleteSessionAtom,
   chatErrorAtom
 } from '@/stores/chatAtoms';
-import { ChatWindow } from '@/app/components/chat/ChatWindow';
-import { ChatInput } from '@/app/components/chat/ChatInput';
+import { ChatWindow } from '@/components/ui/chat/ChatWindow';
+import { ChatInput } from '@/components/ui/chat/ChatInput';
 import { MessageSquare, Plus, Trash2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 

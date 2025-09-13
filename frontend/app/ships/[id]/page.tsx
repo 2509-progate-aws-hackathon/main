@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Ship } from '@/types/ship';
-import { getMockShipById } from '@/app/mocks/ships';
+import { getMockShipById } from '@/mocks/ships';
 import { ShipDetail } from '@/features/ships/components/ShipDetail';
 import { useShipComparison } from '@/hooks/useShips';
 import { Card, CardContent } from '@/components/ui/Card';
