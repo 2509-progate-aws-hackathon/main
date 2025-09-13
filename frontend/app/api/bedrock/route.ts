@@ -20,8 +20,7 @@ export async function POST(request: NextRequest) {
 
         const command = new InvokeAgentRuntimeCommand({
             runtimeSessionId: sessionId,
-            agentRuntimeArn: process.env.BEDROCK_AGENT_RUNTIME_ARN ||
-                "arn:aws:bedrock-agentcore:us-east-1:083439127731:runtime/my_agent-6qs1kDEQkj",
+            agentRuntimeArn: process.env.BEDROCK_AGENT_RUNTIME_ARN || "",
             qualifier: "DEFAULT",
             payload: Buffer.from(JSON.stringify({ prompt: input_text }), 'utf-8'),
         });
