@@ -11,9 +11,11 @@
   },
   "dependencies": {
     "aws-amplify": "^6.15.6",
+    "maplibre-gl": "^5.7.1",
     "next": "15.5.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-map-gl": "^8.0.4"
   },
   "devDependencies": {
     "@aws-amplify/backend": "^1.16.1",
