@@ -1,4 +1,4 @@
-import { useCallback, useRef, useEffect } from 'react';
+import { useCallback, useRef, useEffect, useState } from 'react';
 import maplibregl from 'maplibre-gl';
 import type { AccidentReport } from '../types/AccidentReport';
 
@@ -13,62 +13,83 @@ interface AccidentMarkerRef {
   report: AccidentReport;
 }
 
+// ツールチップ作成
+const createTooltip = (report: AccidentReport, map: maplibregl.Map): HTMLElement => {
+  const tooltip = document.createElement('div');
+  tooltip.className = 'accident-tooltip';
+  tooltip.style.position = 'absolute';
+  tooltip.style.top = '20px';
+  tooltip.style.left = '50%';
+  tooltip.style.transform = 'translateX(-50%)';
+  tooltip.style.backgroundColor = 'white';
+  tooltip.style.border = '2px solid #333';
+  tooltip.style.borderRadius = '8px';
+  tooltip.style.padding = '12px';
+  tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+  tooltip.style.zIndex = '10000';
+  tooltip.style.minWidth = '200px';
+  tooltip.style.maxWidth = '300px';
+  tooltip.style.fontSize = '14px';
+  tooltip.style.lineHeight = '1.4';
+  
+  tooltip.innerHTML = `
+    <div style="font-weight: bold; margin-bottom: 8px; color: #333;">
+      ${report.title || '事故情報'}
+    </div>
+    <div style="margin-bottom: 4px;">
+      <strong>場所:</strong> ${report.location || '不明'}
+    </div>
+    <div style="margin-bottom: 4px;">
+      <strong>種別:</strong> ${report.accidentTypeCategory || 'その他'}
+    </div>
+    <div style="margin-bottom: 4px;">
+      <strong>天候:</strong> ${report.weather || '不明'}
+    </div>
+    <div style="margin-bottom: 8px;">
+      <strong>日時:</strong> ${new Date(report.occurrenceDateTime).toLocaleDateString('ja-JP')}
+    </div>
+    <div style="text-align: center;">
+      <button style="
+        background: #f44336; 
+        color: white; 
+        border: none; 
+        padding: 4px 8px; 
+        border-radius: 4px; 
+        cursor: pointer;
+        font-size: 12px;
+      ">閉じる</button>
+    </div>
+  `;
+  
+  // 閉じるボタンのクリックイベント
+  const closeBtn = tooltip.querySelector('button');
+  closeBtn?.addEventListener('click', () => {
+    tooltip.remove();
+  });
+  
+  // マップ外クリックで閉じる
+  const closeOnMapClick = (e: any) => {
+    if (!tooltip.contains(e.target)) {
+      tooltip.remove();
+      map.off('click', closeOnMapClick);
+    }
+  };
+  
+  setTimeout(() => {
+    map.on('click', closeOnMapClick);
+  }, 100);
+  
+  return tooltip;
+};
+
 // 事故種別による色設定
 const getMarkerColor = (report: AccidentReport): string => {
-  const { accidentTypeCategory, damageLevel, numberOfDeaths, numberOfSeriousInjuries } = report;
-  
-  // 死亡事故は黒
-  if ((numberOfDeaths || 0) > 0) {
-    return '#000000';
-  }
-  
-  // 重傷事故は赤
-  if ((numberOfSeriousInjuries || 0) > 0) {
-    return '#ff0000';
-  }
-  
-  // 損害レベルによる色分け
-  switch (damageLevel) {
-    case '重大':
-      return '#ff4444';
-    case '中程度':
-      return '#ff8800';
-    case '軽微':
-      return '#ffcc00';
-    default:
-      break;
-  }
-  
-  // 事故種別による色分け
-  switch (accidentTypeCategory) {
-    case '追突':
-      return '#ff6b6b';
-    case '出会い頭':
-      return '#4ecdc4';
-    case '右折時':
-      return '#45b7d1';
-    case '左折時':
-      return '#96ceb4';
-    case '横断中':
-      return '#feca57';
-    case '単独':
-      return '#ff9ff3';
-    case 'その他':
-    default:
-      return '#74b9ff';
-  }
+  return "#ff0000"
 };
 
 // マーカーサイズ設定
 const getMarkerSize = (report: AccidentReport): number => {
-  const { numberOfDeaths, numberOfSeriousInjuries, numberOfMinorInjuries } = report;
-  
-  const totalInjuries = (numberOfDeaths || 0) + (numberOfSeriousInjuries || 0) + (numberOfMinorInjuries || 0);
-  
-  if (totalInjuries >= 5) return 16;
-  if (totalInjuries >= 3) return 14;
-  if (totalInjuries >= 1) return 12;
-  return 10;
+  return 25;
 };
 
 // マーカーエレメント作成
@@ -117,6 +138,16 @@ export function useAccidentMarkers({ map, reports, onMarkerClick }: UseAccidentM
     // クリックイベント
     element.addEventListener('click', (e) => {
       e.stopPropagation();
+      
+      // 既存のツールチップを削除
+      const existingTooltips = map.getContainer().querySelectorAll('.accident-tooltip');
+      existingTooltips.forEach(tooltip => tooltip.remove());
+      
+      // 新しいツールチップを表示
+      const tooltip = createTooltip(report, map);
+      map.getContainer().appendChild(tooltip);
+      
+      // 元のコールバックも実行
       onMarkerClick?.(report);
     });
 
