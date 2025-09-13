@@ -2,6 +2,7 @@ import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRef, useEffect, useState } from 'react';
 import { useRouteCalculation } from '../hooks/useRouteCalculation';
+import { useRouteVisualization } from '../hooks/useRouteVisualization';
 
 interface Point {
   lng: number;
@@ -23,6 +24,11 @@ export default function Map({ className, style }: MapProps) {
 
   // ルート計算フックを使用
   const { result: routeResult, loading: routeLoading, error: routeError, calculateRoute } = useRouteCalculation();
+  
+  // ルート可視化フックを使用
+  const { displayRoute, clearRoute, addRouteInteraction } = useRouteVisualization({
+    map: mapInstanceRef.current
+  });
 
   const region = process.env.NEXT_PUBLIC_AWS_REGION;
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
@@ -139,6 +145,29 @@ export default function Map({ className, style }: MapProps) {
       calculateRoute(startPoint, endPoint);
     }
   }, [startPoint, endPoint, calculateRoute]);
+
+  // ルート計算成功時に自動で可視化
+  useEffect(() => {
+    if (routeResult && routeResult.geometry && mapInstanceRef.current) {
+      displayRoute(routeResult.geometry);
+    }
+  }, [routeResult, displayRoute]);
+
+  // マップロード完了時にルートインタラクションを追加
+  useEffect(() => {
+    if (mapInstanceRef.current) {
+      // マップがロードされたらルートインタラクションを設定
+      const map = mapInstanceRef.current;
+      map.on('load', () => {
+        addRouteInteraction();
+      });
+      
+      // 既にロード済みの場合は即座に設定
+      if (map.isStyleLoaded()) {
+        addRouteInteraction();
+      }
+    }
+  }, [addRouteInteraction]);
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>

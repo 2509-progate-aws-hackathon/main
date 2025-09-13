@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { GeoRoutesClient, CalculateRoutesCommand } from '@aws-sdk/client-geo-routes';
+import { GeoRoutesClient, CalculateRoutesCommand, type CalculateRoutesResponse } from '@aws-sdk/client-geo-routes';
 import { withAPIKey } from '@aws/amazon-location-utilities-auth-helper';
 
 interface Point {
@@ -10,6 +10,7 @@ interface Point {
 interface RouteResult {
   distance: number; // メートル
   duration: number; // 秒
+  geometry?: CalculateRoutesResponse; // ルート描画用の正確なレスポンス型
 }
 
 interface UseRouteCalculationResult {
@@ -58,8 +59,10 @@ export function useRouteCalculation(): UseRouteCalculationResult {
           setResult({
             distance: route.Summary.Distance || 0,
             duration: route.Summary.Duration || 0,
+            geometry: response, // 描画用に全レスポンスを保存
           });
         }
+        console.log(response);
       } else {
         setError('ルートが見つかりませんでした');
       }
