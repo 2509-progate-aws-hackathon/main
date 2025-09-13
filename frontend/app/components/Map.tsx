@@ -30,6 +30,28 @@ export default function Map({ className, style }: MapProps) {
     map: mapInstanceRef.current
   });
 
+  // マーカーとルートをリセットする関数
+  const resetMarkers = () => {
+    // マーカーを削除
+    if (startMarkerRef.current) {
+      startMarkerRef.current.remove();
+      startMarkerRef.current = null;
+    }
+    if (endMarkerRef.current) {
+      endMarkerRef.current.remove();
+      endMarkerRef.current = null;
+    }
+
+    // ルートを削除
+    clearRoute();
+
+    // 状態をリセット
+    setStartPoint(null);
+    setEndPoint(null);
+    
+    console.log('マーカーとルートをリセットしました');
+  };
+
   const region = process.env.NEXT_PUBLIC_AWS_REGION;
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
   const mapStyle = process.env.NEXT_PUBLIC_MAP_STYLE;
@@ -194,13 +216,51 @@ export default function Map({ className, style }: MapProps) {
             ルート情報
           </h3>
           
+          {/* 使用方法の説明 */}
+          {!startPoint && !endPoint && (
+            <div style={{ 
+              backgroundColor: '#e3f2fd', 
+              border: '1px solid #2196f3',
+              padding: '8px', 
+              borderRadius: '4px', 
+              fontSize: '12px', 
+              color: '#1976d2',
+              marginBottom: '12px'
+            }}>
+              💡 地図を2回クリックして出発地と目的地を設定
+            </div>
+          )}
+          
           <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
             <div style={{ marginBottom: '8px' }}>
-              出発地: {startPoint ? '設定済み ✓' : '地図をクリックして選択'}
+              出発地: {startPoint ? '設定済み' : '地図をクリックして選択'}
             </div>
             <div style={{ marginBottom: '12px' }}>
-              目的地: {endPoint ? '設定済み ✓' : '地図をクリックして選択'}
+              目的地: {endPoint ? '設定済み' : '地図をクリックして選択'}
             </div>
+
+            {/* リセットボタン */}
+            {(startPoint || endPoint) && (
+              <div style={{ marginBottom: '12px' }}>
+                <button
+                  onClick={resetMarkers}
+                  style={{
+                    backgroundColor: '#f44336',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '8px 12px',
+                    fontSize: '13px',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#d32f2f'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#f44336'}
+                >
+                  🗑️ マーカーをリセット
+                </button>
+              </div>
+            )}
             
             {routeLoading && (
               <div style={{ color: '#666', fontStyle: 'italic' }}>
