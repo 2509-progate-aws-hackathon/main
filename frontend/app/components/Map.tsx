@@ -1,6 +1,7 @@
 import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import { useRef, useEffect, useState } from 'react';
+import { useRouteCalculation } from '../hooks/useRouteCalculation';
 
 interface Point {
   lng: number;
@@ -19,6 +20,9 @@ export default function Map({ className, style }: MapProps) {
   const [endPoint, setEndPoint] = useState<Point | null>(null);
   const startMarkerRef = useRef<maplibregl.Marker | null>(null);
   const endMarkerRef = useRef<maplibregl.Marker | null>(null);
+
+  // ルート計算フックを使用
+  const { result: routeResult, loading: routeLoading, error: routeError, calculateRoute } = useRouteCalculation();
 
   const region = process.env.NEXT_PUBLIC_AWS_REGION;
   const mapApiKey = process.env.NEXT_PUBLIC_MAP_API_KEY;
@@ -129,11 +133,71 @@ export default function Map({ className, style }: MapProps) {
     }
   }, [endPoint]);
 
+  // startPointとendPointが両方設定されたときにルート計算を実行
+  useEffect(() => {
+    if (startPoint && endPoint) {
+      calculateRoute(startPoint, endPoint);
+    }
+  }, [startPoint, endPoint, calculateRoute]);
+
   return (
-    <div 
-      ref={mapRef} 
-      className={className}
-      style={{ width: '100%', height: '100vh', ...style }}
-    />
+    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+      <div 
+        ref={mapRef} 
+        className={className}
+        style={{ width: '100%', height: '100vh', ...style }}
+      />
+      
+      {/* ルート情報表示パネル */}
+      {(startPoint || endPoint || routeLoading || routeError || routeResult) && (
+        <div style={{
+          position: 'absolute',
+          top: '20px',
+          left: '20px',
+          backgroundColor: 'white',
+          padding: '16px',
+          borderRadius: '8px',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
+          minWidth: '250px',
+          zIndex: 1000,
+        }}>
+          <h3 style={{ margin: '0 0 12px 0', fontSize: '16px', fontWeight: 'bold' }}>
+            ルート情報
+          </h3>
+          
+          <div style={{ fontSize: '14px', lineHeight: '1.5' }}>
+            <div style={{ marginBottom: '8px' }}>
+              出発地: {startPoint ? '設定済み ✓' : '地図をクリックして選択'}
+            </div>
+            <div style={{ marginBottom: '12px' }}>
+              目的地: {endPoint ? '設定済み ✓' : '地図をクリックして選択'}
+            </div>
+            
+            {routeLoading && (
+              <div style={{ color: '#666', fontStyle: 'italic' }}>
+                ルート計算中...
+              </div>
+            )}
+            
+            {routeError && (
+              <div style={{ color: '#d32f2f', fontSize: '13px' }}>
+                エラー: {routeError}
+              </div>
+            )}
+            
+            {routeResult && (
+              <div style={{ borderTop: '1px solid #eee', paddingTop: '12px' }}>
+                <div style={{ marginBottom: '4px' }}>
+                  <strong>距離:</strong> {(routeResult.distance / 1000).toFixed(2)} km
+                </div>
+                <div>
+                  <strong>所要時間:</strong> {Math.round(routeResult.duration / 60)} 分
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
