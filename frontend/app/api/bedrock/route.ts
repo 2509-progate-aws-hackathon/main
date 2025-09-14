@@ -29,27 +29,20 @@ export async function POST(request: NextRequest) {
         const textResponse = await response.response?.transformToString() || '';
 
         // レスポンステキスト抽出
-        let finalText = textResponse;
+        let parsedData;
         try {
-            const parsed = JSON.parse(textResponse);
-            if (parsed?.result) {
-                const result = parsed.result;
-                if (result?.content && Array.isArray(result.content)) {
-                    finalText = result.content
-                        .filter((item: any) => item.text)
-                        .map((item: any) => item.text)
-                        .join('\n');
-                } else if (typeof result === 'string') {
-                    finalText = result;
-                }
-            }
+            parsedData = JSON.parse(textResponse);
         } catch {
-            // パースに失敗したら元のテキストを使用
+            // パースに失敗した場合はテキストとして返す
+            return NextResponse.json({
+                success: true,
+                response: textResponse,
+            });
         }
 
         return NextResponse.json({
             success: true,
-            response: finalText,
+            data: parsedData,
         });
 
     } catch (error) {

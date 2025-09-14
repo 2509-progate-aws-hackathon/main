@@ -7,12 +7,30 @@ interface Message {
   role: 'user' | 'assistant';
   content: string;
   timestamp: Date;
+  data?: any; 
 }
 
 export default function BedrockDemo() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+
+  const formatAccidentData = (accident: any) => {
+    return (
+      <div className="bg-gray-50 p-3 rounded mt-2 text-sm">
+        <h4 className="font-semibold text-gray-800 mb-2">{accident.title}</h4>
+        <div className="grid grid-cols-2 gap-2 text-xs">
+          <div><span className="font-medium">発生日時:</span> {new Date(accident.occurrenceDateTime).toLocaleString('ja-JP')}</div>
+          <div><span className="font-medium">場所:</span> {accident.location}</div>
+          <div><span className="font-medium">天候:</span> {accident.weather}</div>
+          <div><span className="font-medium">事故タイプ:</span> {accident.accidentTypeCategory}</div>
+          <div><span className="font-medium">損傷レベル:</span> {accident.damageLevel}</div>
+          <div><span className="font-medium">座標:</span> {accident.latitude}, {accident.longitude}</div>
+        </div>
+        <p className="text-xs text-gray-600 mt-2">{accident.description}</p>
+      </div>
+    );
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -40,8 +58,11 @@ export default function BedrockDemo() {
       const assistantMessage: Message = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: data.success ? data.response : `エラー: ${data.error}`,
+        content: data.success 
+          ? (data.data?.result || '結果を取得しました')
+          : `エラー: ${data.error}`,
         timestamp: new Date(),
+        data: data.success ? data.data : null,
       };
 
       setMessages(prev => [...prev, assistantMessage]);
@@ -83,6 +104,21 @@ export default function BedrockDemo() {
                 }`}
               >
                 <div className="whitespace-pre-wrap">{message.content}</div>
+                
+                {/* 構造化データの表示 */}
+                {message.data?.structured_data && (
+                  <div className="mt-3">
+                    <p className="font-semibold text-sm mb-2">検索結果 ({message.data.count}件):</p>
+                    <div className="max-h-60 overflow-y-auto space-y-2">
+                      {message.data.structured_data.map((accident: any, index: number) => (
+                        <div key={accident.id || index}>
+                          {formatAccidentData(accident)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <div className="text-xs text-gray-500 mt-1">
                   {message.timestamp.toLocaleTimeString('ja-JP')}
                 </div>
