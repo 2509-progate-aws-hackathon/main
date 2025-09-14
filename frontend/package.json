@@ -10,18 +10,31 @@
     "format": "biome format --write"
   },
   "dependencies": {
-    "@aws-sdk/client-bedrock-agentcore": "^3.888.0",
+    "@aws-sdk/client-geo-routes": "^3.888.0",
+    "@aws-sdk/client-location": "^3.888.0",
+    "@aws/amazon-location-utilities-auth-helper": "^1.2.3",
+    "@aws/amazon-location-utilities-datatypes": "^1.2.1",
+    "@here/flexpolyline": "^0.1.0",
+    "aws-amplify": "^6.15.6",
+    "maplibre-gl": "^5.7.1",
     "next": "15.5.3",
     "react": "19.1.0",
-    "react-dom": "19.1.0"
+    "react-dom": "19.1.0",
+    "react-map-gl": "^8.0.4"
   },
   "devDependencies": {
+    "@aws-amplify/backend": "^1.16.1",
+    "@aws-amplify/backend-cli": "^1.8.0",
     "@biomejs/biome": "2.2.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "aws-cdk-lib": "^2.204.0",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.9",
     "tailwindcss": "^4",
-    "typescript": "^5"
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
   }
 }
