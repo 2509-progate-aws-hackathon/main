@@ -11,8 +11,7 @@ const schema = a.schema({
       occurrenceDateTime: a.datetime().required(),
       weather: a.string(),
       location: a.string(),
-      latitude: a.float(),
-      longitude: a.float(),
+      geography: a.string(),  // geography 型だが、ここでは string として扱う
       vehicleId: a.string(),
       
       // 事故詳細 (6項目)

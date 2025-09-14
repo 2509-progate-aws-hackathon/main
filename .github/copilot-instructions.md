@@ -5,6 +5,7 @@
 - 作業項目が多い場合は、段階に区切り、git commit を行いながら進めること
   - semantic commit を使用する
 - コマンドの出力が確認できない場合、 get last command / check background terminal を使用して確認すること
+  - less 表示で途切れていると推測される場合は、.data/out.txt に出力すること
 
 ## develop
 各作業を以下のように定義する。

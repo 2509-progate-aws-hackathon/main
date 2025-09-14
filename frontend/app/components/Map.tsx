@@ -4,6 +4,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useRouteCalculation } from '../hooks/useRouteCalculation';
 import { useRouteVisualization } from '../hooks/useRouteVisualization';
 import { useAccidentMarkers } from '../hooks/useAccidentMarkers';
+import { useSimulationProcess } from '../hooks/useSimulationProcess';
 import type { AccidentReport } from '../types/AccidentReport';
 
 interface Point {
@@ -33,6 +34,16 @@ export default function Map({
 
   // ルート計算フックを使用
   const { result: routeResult, loading: routeLoading, error: routeError, calculateRoute } = useRouteCalculation();
+  
+  // シミュレーション処理フックを使用
+  const { 
+    currentStage, 
+    isRunning: simulationRunning, 
+    error: simulationError, 
+    routeResult: simulationRouteResult,
+    startSimulation,
+    resetSimulation 
+  } = useSimulationProcess();
   
   // ルート可視化フックを使用
   const { displayRoute, clearRoute, addRouteInteraction } = useRouteVisualization({
@@ -177,19 +188,26 @@ export default function Map({
     }
   }, [endPoint]);
 
-  // startPointとendPointが両方設定されたときにルート計算を実行
-  useEffect(() => {
-    if (startPoint && endPoint) {
-      calculateRoute(startPoint, endPoint);
-    }
-  }, [startPoint, endPoint, calculateRoute]);
+  // 自動ルート計算を無効化（手動でシミュレーション開始するため）
+  // useEffect(() => {
+  //   if (startPoint && endPoint) {
+  //     calculateRoute(startPoint, endPoint);
+  //   }
+  // }, [startPoint, endPoint, calculateRoute]);
 
-  // ルート計算成功時に自動で可視化
+  // シミュレーション完了時にルートを可視化
   useEffect(() => {
-    if (routeResult && routeResult.geometry && mapInstanceRef.current) {
+    if (simulationRouteResult && simulationRouteResult.geometry && mapInstanceRef.current) {
+      displayRoute(simulationRouteResult.geometry);
+    }
+  }, [simulationRouteResult, displayRoute]);
+
+  // 通常のルート計算成功時の可視化（シミュレーション外）
+  useEffect(() => {
+    if (routeResult && routeResult.geometry && mapInstanceRef.current && currentStage === 'idle') {
       displayRoute(routeResult.geometry);
     }
-  }, [routeResult, displayRoute]);
+  }, [routeResult, displayRoute, currentStage]);
 
   // マップロード完了時にルートインタラクションを追加
   useEffect(() => {
@@ -209,6 +227,14 @@ export default function Map({
 
   return (
     <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
+      <style>
+        {`
+          @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+          }
+        `}
+      </style>
       <div 
         ref={mapRef} 
         className={className}
@@ -255,11 +281,39 @@ export default function Map({
               目的地: {endPoint ? '設定済み' : '地図をクリックして選択'}
             </div>
 
+            {/* シミュレーション開始ボタン */}
+            {startPoint && endPoint && !simulationRunning && currentStage === 'idle' && (
+              <div style={{ marginBottom: '12px' }}>
+                <button
+                  onClick={() => startSimulation(startPoint, endPoint)}
+                  style={{
+                    backgroundColor: '#2196f3',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    padding: '12px 16px',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s',
+                    width: '100%'
+                  }}
+                  onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#1976d2'}
+                  onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#2196f3'}
+                >
+                  🚀 シミュレーション開始
+                </button>
+              </div>
+            )}
+
             {/* リセットボタン */}
             {(startPoint || endPoint) && (
               <div style={{ marginBottom: '12px' }}>
                 <button
-                  onClick={resetMarkers}
+                  onClick={() => {
+                    resetMarkers();
+                    resetSimulation();
+                  }}
                   style={{
                     backgroundColor: '#f44336',
                     color: 'white',
@@ -277,26 +331,141 @@ export default function Map({
                 </button>
               </div>
             )}
+
+            {/* シミュレーション段階表示 */}
+            {simulationRunning && (
+              <div style={{ 
+                borderTop: '1px solid #eee', 
+                paddingTop: '12px',
+                marginBottom: '12px' 
+              }}>
+                <div style={{ marginBottom: '8px', fontSize: '14px', fontWeight: 'bold' }}>
+                  処理状況
+                </div>
+                
+                {/* 段階1: ルート検索 */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '6px',
+                  fontSize: '13px'
+                }}>
+                  {currentStage === 'searching-route' ? (
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid #2196f3',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      marginRight: '8px'
+                    }} />
+                  ) : (
+                    <span style={{ 
+                      color: currentStage !== 'idle' ? '#4caf50' : '#ccc',
+                      marginRight: '8px',
+                      fontSize: '14px'
+                    }}>
+                      {currentStage !== 'idle' ? '✓' : '○'}
+                    </span>
+                  )}
+                  <span style={{ 
+                    color: currentStage === 'searching-route' ? '#2196f3' : 
+                          (currentStage !== 'idle' ? '#4caf50' : '#666')
+                  }}>
+                    1. ルートを検索中...
+                  </span>
+                </div>
+
+                {/* 段階2: 事故情報検索 */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '6px',
+                  fontSize: '13px'
+                }}>
+                  {currentStage === 'searching-accidents' ? (
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid #ff9800',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      marginRight: '8px'
+                    }} />
+                  ) : (
+                    <span style={{ 
+                      color: ['simulating', 'completed'].includes(currentStage) ? '#4caf50' : '#ccc',
+                      marginRight: '8px',
+                      fontSize: '14px'
+                    }}>
+                      {['simulating', 'completed'].includes(currentStage) ? '✓' : '○'}
+                    </span>
+                  )}
+                  <span style={{ 
+                    color: currentStage === 'searching-accidents' ? '#ff9800' : 
+                          (['simulating', 'completed'].includes(currentStage) ? '#4caf50' : '#666')
+                  }}>
+                    2. 付近の事故情報を検索中...
+                  </span>
+                </div>
+
+                {/* 段階3: シミュレーション */}
+                <div style={{ 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  marginBottom: '6px',
+                  fontSize: '13px'
+                }}>
+                  {currentStage === 'simulating' ? (
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid #9c27b0',
+                      borderTop: '2px solid transparent',
+                      borderRadius: '50%',
+                      animation: 'spin 1s linear infinite',
+                      marginRight: '8px'
+                    }} />
+                  ) : (
+                    <span style={{ 
+                      color: currentStage === 'completed' ? '#4caf50' : '#ccc',
+                      marginRight: '8px',
+                      fontSize: '14px'
+                    }}>
+                      {currentStage === 'completed' ? '✓' : '○'}
+                    </span>
+                  )}
+                  <span style={{ 
+                    color: currentStage === 'simulating' ? '#9c27b0' : 
+                          (currentStage === 'completed' ? '#4caf50' : '#666')
+                  }}>
+                    3. シミュレーション中...
+                  </span>
+                </div>
+              </div>
+            )}
             
-            {routeLoading && (
+            {routeLoading && !simulationRunning && (
               <div style={{ color: '#666', fontStyle: 'italic' }}>
                 ルート計算中...
               </div>
             )}
             
-            {routeError && (
+            {(routeError || simulationError) && (
               <div style={{ color: '#d32f2f', fontSize: '13px' }}>
-                エラー: {routeError}
+                エラー: {simulationError || routeError}
               </div>
             )}
             
-            {routeResult && (
+            {(routeResult || simulationRouteResult) && currentStage === 'completed' && (
               <div style={{ borderTop: '1px solid #eee', paddingTop: '12px' }}>
                 <div style={{ marginBottom: '4px' }}>
-                  <strong>距離:</strong> {(routeResult.distance / 1000).toFixed(2)} km
+                  <strong>距離:</strong> {((simulationRouteResult || routeResult)?.distance / 1000).toFixed(2)} km
                 </div>
                 <div>
-                  <strong>所要時間:</strong> {Math.round(routeResult.duration / 60)} 分
+                  <strong>所要時間:</strong> {Math.round(((simulationRouteResult || routeResult)?.duration || 0) / 60)} 分
                 </div>
               </div>
             )}
