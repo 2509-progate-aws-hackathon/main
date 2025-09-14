@@ -8,7 +8,7 @@ export default function Home() {
     <Map 
       accidentReports={mockAccidentReports}
       onAccidentMarkerClick={(report) => {
-        console.log('事故マーカークリック:', report.title);
+        console.log('事故マーカークリック:', report);
       }}
     />
   );

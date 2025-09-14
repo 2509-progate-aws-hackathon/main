@@ -1,7 +1,100 @@
 // 交通事故レポート関連の型定義
-// 58個のCSVカラムに対応したTypeScript型定義
+// 実際のDBスキーマに基づく完全な事故データ構造
 
+/**
+ * データベースの実際のスキーマに基づく事故データの型定義
+ */
 export interface AccidentReport {
+  // 基本情報
+  OCCURRENCE_DATE_AND_TIME?: string;
+  WEATHER?: string;
+  LOCATION?: string;
+  VEHICLE_ID?: string;
+  ACCIDENT_TYPE_CATEGORY?: string;
+  ORDER_OF_ACCIDENT_OCCURRENCE?: string;
+  
+  // 事故状況
+  FALL_HEIGHT?: number;
+  WATER_DEPTH?: number;
+  COLLISION_CONDITION?: string;
+  
+  // 車両情報
+  VEHICLE_1_MODEL_NAME?: string;
+  VEHICLE_1_MODEL_TYPE?: string;
+  VEHICLE_1_BODY_TYPE?: string;
+  VEHICLE_1_YEAR_OF_INITIAL_REGISTRATION_INSPECTION?: number;
+  VEHICLE_1_SEATING_CAPACITY?: number;
+  VEHICLE_1_LOAD_AT_THE_TIME?: number;
+  VEHICLE_1_MAXIMUM_LOAD_CAPACITY?: number;
+  
+  // 貨物情報
+  CARGO_CONTENTS?: string;
+  TRANSPORT_OF_HAZARDOUS_MATERIAL?: boolean;
+  TYPE_OF_HAZARDOUS_MATERIAL?: string;
+  
+  // 道路情報
+  ROAD_TYPE?: string;
+  ROAD_SURFACE_CONDITION?: string;
+  WARNING_SIGNS_INSTALLED?: boolean;
+  SPEED_LIMIT_ON_ROAD?: number;
+  RAILWAY_CROSSING_CONDITION?: string;
+  
+  // 事故時の状況
+  SPEED_AT_RISK_RECOGNITION?: number;
+  DISTANCE_AT_RISK_RECOGNITION?: number;
+  SLIP_DISTANCE?: number;
+  VEHICLE_BEHAVIOR_AT_ACCIDENT?: string;
+  ACCIDENT_LOCATION?: string;
+  
+  // 被害状況
+  CONDITION_OF_INJURED_OR_DECEASED?: string;
+  FAULT_LOCATION?: string;
+  PERMANENT_TEMPORARY?: string;
+  
+  // 運転手の状況
+  DAYS_OFF_IN_THE_PAST_MONTH_BEFORE_ACCIDENT?: number;
+  WORKING_HOURS_UNTIL_ACCIDENT?: number;
+  DISTANCE_DRIVEN_UNTIL_ACCIDENT?: number;
+  DAYS_WORKED_SINCE_LAST_DAY_OFF?: number;
+  TOTAL_DISTANCE_DRIVEN_SINCE_LAST_DAY_OFF?: number;
+  
+  // 損害・被害統計
+  DAMAGE_LEVEL?: string;
+  SEATBELT_USAGE?: boolean;
+  NUMBER_OF_ACCIDENTS?: number;
+  NUMBER_OF_VIOLATIONS?: number;
+  NUMBER_OF_DEATHS?: number;
+  NUMBER_OF_DEATHS_PASSENGERS?: number;
+  NUMBER_OF_SERIOUS_INJURIES?: number;
+  NUMBER_OF_SERIOUS_INJURIES_PASSENGERS?: number;
+  NUMBER_OF_MINOR_INJURIES?: number;
+  NUMBER_OF_MINOR_INJURIES_PASSENGERS?: number;
+  
+  // 車両履歴
+  TOTAL_DRIVEN_DISTANCE?: number;
+  MODIFICATION_CONTENTS?: string;
+  DATE_OF_MODIFICATION?: string;
+  BROKEN_OR_DETACHED_PART_NAME?: string;
+  DRIVEN_DISTANCE_SINCE_INSTALLATION?: number;
+  MODIFICATION_DATE_1?: string;
+  MODIFICATION_DATE_2?: string;
+  MODIFICATION_DATE_3?: string;
+  FATIGUE_OR_SUDDEN_BREAKAGE_TYPE?: string;
+  
+  // レポート情報
+  TITLE?: string;
+  DESCRIPTION?: string;
+  GEOG?: string; // PostGIS geography column
+  
+  // 計算フィールド
+  distance_meters?: number;
+}
+
+/**
+ * 古い型定義との互換性のための型エイリアス
+ * @deprecated 新しいコードではAccidentReportを使用してください
+ */
+export interface LegacyAccidentReport {
   id: string;
   
   // 基本情報 (6項目)
@@ -91,35 +184,43 @@ export interface AccidentReport {
   updatedAt: string;
 }
 
-// フィルタリング用の型定義
+// フィルタリング用の型定義（実際のスキーマに基づく）
 export interface AccidentReportFilter {
   // 日付範囲
   startDate?: string;
   endDate?: string;
   
-  // 基本フィルター
-  weather?: string;
-  location?: string;
-  accidentTypeCategory?: string;
-  damageLevel?: string;
-  
-  // 地理的フィルター
-  minLatitude?: number;
-  maxLatitude?: number;
-  minLongitude?: number;
-  maxLongitude?: number;
+  // 基本フィルター（実際のカラム名を使用）
+  WEATHER?: string;
+  LOCATION?: string;
+  ACCIDENT_TYPE_CATEGORY?: string;
+  DAMAGE_LEVEL?: string;
   
   // 車両フィルター
-  vehicle1ModelType?: string;
-  vehicle1BodyType?: string;
+  VEHICLE_1_MODEL_TYPE?: string;
+  VEHICLE_1_BODY_TYPE?: string;
+  VEHICLE_1_MODEL_NAME?: string;
   
   // 道路環境フィルター
-  roadType?: string;
-  roadSurfaceCondition?: string;
+  ROAD_TYPE?: string;
+  ROAD_SURFACE_CONDITION?: string;
   
   // 被害フィルター
   hasDeaths?: boolean;
   hasSeriousInjuries?: boolean;
+  hasMinorInjuries?: boolean;
+  
+  // 地理的フィルター（PostGIS使用）
+  boundingBox?: {
+    minLat: number;
+    maxLat: number;
+    minLng: number;
+    maxLng: number;
+  };
+  
+  // ルート周辺検索
+  routeLine?: string;
+  distanceMeters?: number;
   
   // 検索クエリ
   searchQuery?: string;

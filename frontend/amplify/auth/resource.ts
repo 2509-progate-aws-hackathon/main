@@ -8,4 +8,6 @@ export const auth = defineAuth({
   loginWith: {
     email: true,
   },
+  // ゲストアクセスを有効化
+  groups: ["admins"]
 });
